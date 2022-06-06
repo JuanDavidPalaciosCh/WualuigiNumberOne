@@ -1,8 +1,8 @@
 # import libraries
 import pygame
 import os
-import time
 import random
+from pygame import mixer
 from constants import *
 
 # initialize pygame
@@ -11,6 +11,15 @@ pygame.init()
 # create window
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Waluigi number one')
+
+#load music and sounds
+bg_music = pygame.mixer.music.load('assets/BgMusic.mp3')
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1, 0.0)
+wah_sound = pygame.mixer.Sound('assets/WahSound.mp3')
+wah_sound.set_volume(0.1)
+gameover_sound = pygame.mixer.Sound('assets/GameOver.mp3')
+gameover_sound.set_volume(0.5)
 
 # game_variables
 bg_scroll: int = 0
@@ -88,11 +97,11 @@ class Player ():
         dx: int = 0
         dy: int = 0
         
-        if key[pygame.K_LEFT]:
+        if key[pygame.K_LEFT] and not key[pygame.K_RIGHT]:
            dx = -5
            self.flip = True
 
-        if key[pygame.K_RIGHT]:
+        if key[pygame.K_RIGHT] and not key[pygame.K_LEFT]:
            dx = +5
            self.flip = False
 
@@ -103,7 +112,7 @@ class Player ():
         #check player x
         if self.rect.x < 0:
             self.rect.x = 400
-        elif self.rect.x > 400:
+        if self.rect.x > 400:
             self.rect.x = 0
 
         #check collision with enemies        
@@ -114,6 +123,7 @@ class Player ():
                if self.rect.bottom < enemy.rect.centery:
                     if self.vel_y > 0:
                         self.rect.bottom = enemy.rect.top
+                        wah_sound.play()
                         dy = 0
                         self.vel_y = -19
                         enemy.die()
@@ -199,8 +209,6 @@ while run:
 
     if game_over == False:
         
-        img = choose_image(game_over_img)
-
         scroll = wualuigi.move()
 
         # draw background
@@ -252,6 +260,11 @@ while run:
 
         #check game over
         if wualuigi.rect.top > WINDOW_HEIGHT:
+            #Ser image
+            img = choose_image(game_over_img)
+            #Play music
+            pygame.mixer.music.stop()
+            gameover_sound.play()
             game_over = True
 
 
@@ -280,6 +293,9 @@ while run:
             # Play again        
             key = pygame.key.get_pressed()
             if key[pygame.K_SPACE]:
+                # stop death effect and play game music again
+                gameover_sound.stop()
+                pygame.mixer.music.play(-1, 0.0)
                 # reset variables
                 game_over = False
                 score = 0
