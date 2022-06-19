@@ -7,6 +7,7 @@ BLACK: tuple = (0, 0, 0)
 WHITE: tuple = (255, 255, 255)
 RED: tuple = (255, 0, 0)
 PURPLE: tuple = (240, 0, 255)
+YELLOW: tuple = (255, 255, 30)
 PANEL: tuple = (153, 217, 234)
 
 # font
@@ -24,6 +25,7 @@ SCROLL_THRESH: int = 150
 GRAVITY: int = 1
 MAX_ENEMIES: int = 10
 ENEMY_SCALE: tuple = (50, 40)
+BONUS_SCALE: tuple = (30, 30)
 FLOOR_SCALE: tuple = (400, 40)
 WUALUIGI_SCALE: tuple = (50, 60)
 

@@ -12,13 +12,10 @@ pygame.init()
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Waluigi number one')
 
-#load music and sounds
-bg_music = pygame.mixer.music.load('assets/BgMusic.mp3')
-pygame.mixer.music.set_volume(0.3)
-pygame.mixer.music.play(-1, 0.0)
-wah_sound = pygame.mixer.Sound('assets/WahSound.mp3')
+
+wah_sound = pygame.mixer.Sound('assets/sounds/WahSound.mp3')
 wah_sound.set_volume(0.1)
-gameover_sound = pygame.mixer.Sound('assets/GameOver.mp3')
+gameover_sound = pygame.mixer.Sound('assets/sounds/GameOver.mp3')
 gameover_sound.set_volume(0.5)
 
 # game_variables
@@ -32,15 +29,18 @@ else:
     high_score: int = 0
 
 # load images
-bg_image = pygame.image.load('assets/MarioBg.jpg').convert_alpha()
-wualuigi_game_over = pygame.image.load('assets/WualuigiGameOver.png').convert_alpha()
-wualuigi_game_over2 = pygame.image.load('assets/WualuigiGameOver2.png').convert_alpha()
-wualuigi_game_over3 = pygame.image.load('assets/WualuigiGameOver3.png').convert_alpha()
-wualuigi_image = pygame.image.load('assets/wualuigi.png').convert_alpha()
-shyguy_image = pygame.image.load('assets/FlyingShyGuy.png').convert_alpha()
-goomba_image = pygame.image.load('assets/FlyingGoomba.png').convert_alpha()
-koopa_image = pygame.image.load('assets/FlyingKoopa.png').convert_alpha()
-floor_image = pygame.image.load('assets/floor.png').convert_alpha()
+bg_image = pygame.image.load('assets/images/MarioBg.jpg').convert_alpha()
+wualuigi_game_over = pygame.image.load('assets/images/WualuigiGameOver.png').convert_alpha()
+wualuigi_game_over2 = pygame.image.load('assets/images/WualuigiGameOver2.png').convert_alpha()
+wualuigi_game_over3 = pygame.image.load('assets/images/WualuigiGameOver3.png').convert_alpha()
+wualuigi_image = pygame.image.load('assets/images/wualuigi.png').convert_alpha()
+shyguy_image = pygame.image.load('assets/images/FlyingShyGuy.png').convert_alpha()
+goomba_image = pygame.image.load('assets/images/FlyingGoomba.png').convert_alpha()
+koopa_image = pygame.image.load('assets/images/FlyingKoopa.png').convert_alpha()
+bonus_image = pygame.image.load('assets/images/Bonus.png').convert_alpha()
+floor_image = pygame.image.load('assets/images/floor.png').convert_alpha()
+menu_image = pygame.image.load('assets/menu/WaluigiMenu.png').convert_alpha()
+bg_menu = pygame.image.load('assets/menu/MenuBg.jpg').convert_alpha()
 
 # game over image
 game_over_img: tuple = (wualuigi_game_over, wualuigi_game_over2, wualuigi_game_over3)
@@ -52,11 +52,50 @@ shyguy_image, shyguy_image, shyguy_image, shyguy_image, shyguy_image,
 shyguy_image, shyguy_image, shyguy_image, shyguy_image, shyguy_image,
 shyguy_image, shyguy_image, shyguy_image, shyguy_image, shyguy_image]
 
+#Menu font
+def get_font(size):
+    return pygame.font.Font("assets/menu/font.ttf", size)
+
+
+# Pantalla inicio
+def intro_game(run):
+    while not run:
+        window.blit(bg_menu, (0,0))
+        draw_text('WALUIGI ', get_font(20), YELLOW, 125 , 25)
+        draw_text('NUMBER ONE', get_font(20), YELLOW, 100  , 50)
+        draw_text('Made by:', FONT_SMALL, WHITE, 160 , 90 )
+        draw_text('Juan David Palacios', FONT_SMALL, WHITE, 110 , 120 )
+        draw_text('Mauro Bohorquez', FONT_SMALL, WHITE, 120 , 140 )
+        draw_text('Gabriel Estupiñan', FONT_SMALL, WHITE, 115 , 160 )
+    
+        image_menu = pygame.transform.scale(menu_image, (200, 200))
+        window.blit(image_menu, (100,200))
+    
+        draw_text('HIGHSCORE: {}'.format(high_score), FONT_BIG, WHITE, 100, 420)
+        draw_text('PRESS SPACE TO PLAY ', FONT_BIG, WHITE, 90, 450)
+        pygame.display.update()
+        CLOCK.tick(FPS)
+        key = pygame.key.get_pressed()
+        if key[pygame.K_SPACE]:
+            run = True
+
+        # event handler
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+    return True
+        
+
+def initialize_music():
+    #load music and sounds
+    pygame.mixer.music.load('assets/sounds/BgMusic.mp3')
+    pygame.mixer.music.set_volume(0.3)
+    pygame.mixer.music.play(-1, 0.0)
+
 # function for write text
 def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     window.blit(img, (x, y))
-
 
 # info panel
 def draw_panel():
@@ -127,6 +166,7 @@ class Player ():
                         dy = 0
                         self.vel_y = -19
                         enemy.die()
+                        enemy.bonus()
 
         # check if the player  has bounced to the top of the screen
         if self.rect.top <= SCROLL_THRESH:
@@ -143,8 +183,7 @@ class Player ():
     def draw(self):
 
         window.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x - 15, self.rect.y))
-        pygame.draw.rect(window, PURPLE, self.rect, 2)
-
+        #pygame.draw.rect(window, PURPLE, self.rect, 2)
 
 # enemy class
 class Enemy(pygame.sprite.Sprite):
@@ -173,6 +212,11 @@ class Enemy(pygame.sprite.Sprite):
     def die(self):
         if self.picture == goomba_image:
             self.rect.y += 500
+    
+
+    def bonus(self):
+        if self.picture == bonus_image:
+            wualuigi.vel_y -= 30
 
 
     def move(self):
@@ -200,8 +244,14 @@ enemy = Enemy(0, WINDOW_HEIGHT - 30, floor_image, FLOOR_SCALE)
 enemy_group.add(enemy)
 
 # Game loop
-run = True
+run = False
 game_over = False 
+
+run = intro_game(run)
+
+
+if run:
+    initialize_music()
 
 while run:
 
@@ -222,17 +272,24 @@ while run:
             # increase dificult
             if score >= 500 and score < 2500:
                 enemy_list.append(goomba_image)
-                print("goomba")
+                #print("goomba")
 
             if score >= 1000 and score < 2500:
                 enemy_list.append(koopa_image)
-                print("koopa")
+                #print("koopa")
+            
+            if score >= 2000 and score < 2500:
+                enemy_list.append(bonus_image)
 
             e_x = random.randint(0, WINDOW_WIDTH - 50)
             e_y = enemy.rect.y - random.randint(90, 95)
             orientation = bool(random.randint(0, 1))
             enemy_image = random.choice(enemy_list)
-            enemy = Enemy(e_x, e_y, enemy_image, ENEMY_SCALE, orientation)
+            if enemy_image == bonus_image:
+                scale = BONUS_SCALE
+            else:
+                scale = ENEMY_SCALE
+            enemy = Enemy(e_x, e_y, enemy_image, scale, orientation)
             enemy_group.add(enemy)
 
         # update enemies
@@ -240,7 +297,7 @@ while run:
 
         #update score
         if scroll > 0:
-            score += scroll
+            score += scroll 
 
         # draw line at previous high score
         if high_score > 0:
@@ -276,19 +333,19 @@ while run:
                 pygame.draw.rect(window, BLACK, (400 - fade_counter, y * 100 + 100, fade_counter, 100))
 
         else:
-            
-            game_over_image = pygame.transform.scale(img, (200, 400))
-            window.blit(game_over_image, (80,200))
-
-            draw_text('GAME OVER', FONT_BIG, PURPLE, 130, 50)
-            draw_text('SCORE: {}'.format(score), FONT_BIG, WHITE, 140, 100)
-            draw_text('PRESS SPACE TO PLAY AGAIN', FONT_BIG, WHITE, 40, 150)
-
             # update highscore
             if score > high_score:
                 high_score = score
                 with open('score.txt', 'w') as file:
                     file.write(str(high_score))
+                    
+            game_over_image = pygame.transform.scale(img, (200, 400))
+            window.blit(game_over_image, (80,200))
+
+            draw_text('GAME OVER', FONT_BIG, PURPLE, 130, 30)
+            draw_text('SCORE: {}'.format(score), FONT_BIG, WHITE, 140, 70)
+            draw_text('HIGHSCORE: {}'.format(high_score), FONT_BIG, WHITE, 100, 110)
+            draw_text('PRESS SPACE TO PLAY AGAIN', FONT_BIG, WHITE, 40, 150)
 
             # Play again        
             key = pygame.key.get_pressed()
