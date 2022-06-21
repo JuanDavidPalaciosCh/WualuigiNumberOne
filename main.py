@@ -216,7 +216,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def bonus(self):
         if self.picture == bonus_image:
-            wualuigi.vel_y -= 30
+            wualuigi.vel_y -= 40
 
 
     def move(self):

@@ -24,10 +24,10 @@ WINDOW_HEIGHT: int = 600
 SCROLL_THRESH: int = 150
 GRAVITY: int = 1
 MAX_ENEMIES: int = 10
-ENEMY_SCALE: tuple = (50, 40)
-BONUS_SCALE: tuple = (30, 30)
+ENEMY_SCALE: tuple = (60, 50)
+BONUS_SCALE: tuple = (50, 40)
 FLOOR_SCALE: tuple = (400, 40)
-WUALUIGI_SCALE: tuple = (50, 60)
+WUALUIGI_SCALE: tuple = (40, 70)
 
 
 CLOCK = pygame.time.Clock()
